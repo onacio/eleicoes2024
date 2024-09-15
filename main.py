@@ -24,13 +24,12 @@ df_filtrado = df[df['NM_VOTAVEL'] == votavel]
 
 dados_grafico = df_filtrado[['NM_VOTAVEL','QT_VOTOS']]
 
+d = st.dataframe(dados_grafico, hide_index=True)
+
 st.sidebar.write('# Dados do candidato')
 st.sidebar.write(f'Nome: {df_filtrado['NM_VOTAVEL'].unique()}')
 st.sidebar.write(f'Número: {df_filtrado['NR_VOTAVEL'].unique()}')
 st.sidebar.write(f'Total de votos: {df_filtrado['QT_VOTOS'].sum()}')
-
-st.bar_chart(dados_grafico)
-print(dados_grafico)
 
 # Exibe na tela o dataframe com os dados do votável que foi selecionado
 st.dataframe(df_filtrado[colunas], hide_index=True)
