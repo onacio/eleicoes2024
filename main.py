@@ -21,6 +21,7 @@ votavel = st.sidebar.selectbox('Nome do votável', df['NM_VOTAVEL'].unique())
 
 # aqui é feito o filtro pelo nome do votável assim que for selecionado
 df_filtrado = df[df['NM_VOTAVEL'] == votavel]
+st.sidebar.multiselect('Selecione os votáveis', df_filtrado.columns)
 
 dados_grafico = df_filtrado[['NM_VOTAVEL','QT_VOTOS']]
 
