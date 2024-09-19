@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 
+import plotly.express as px
+
 # Ocupa a largura total da tela
 st.set_page_config(layout='wide')
 
@@ -42,3 +44,24 @@ st.sidebar.write(f'Total de votos: {df_filtrado["QT_VOTOS"].sum()}')
 
 # Exibe na tela o dataframe filtrado com as localidades selecionadas
 st.dataframe(df_filtrado[colunas], hide_index=True, use_container_width=True)
+
+# Agrupar os votos por candidato e ordenar em ordem decrescente
+df_votos_por_candidato = df_cargo.groupby('NM_VOTAVEL')['QT_VOTOS'].sum().reset_index()
+df_votos_por_candidato = df_votos_por_candidato.sort_values(by='QT_VOTOS', ascending=False)
+
+# Definir a altura do gráfico com base na quantidade de candidatos
+altura_grafico = len(df_votos_por_candidato) * 40  # Ajuste o multiplicador conforme necessário
+
+# Criar o gráfico de barras horizontal com rolagem
+fig = px.bar(df_votos_por_candidato, 
+             x='QT_VOTOS', 
+             y='NM_VOTAVEL', 
+             orientation='h', 
+             labels={'QT_VOTOS': 'Total de Votos', 'NM_VOTAVEL': 'Candidato'},
+             title=f'Total de Votos por Candidato para {cargo}')
+
+# Ajustar a altura do gráfico para caber todos os candidatos
+fig.update_layout(height=altura_grafico, yaxis={'categoryorder': 'total ascending'})
+
+# Exibir o gráfico no Streamlit
+st.plotly_chart(fig)
