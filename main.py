@@ -16,15 +16,17 @@ st.write("""
 """)
 
 # Menu que seleciona o nome do votável na tela
+st.sidebar.title('Filtrar dados')
+
 cargo = st.sidebar.selectbox('Cargo', df['DS_CARGO'].unique())
 df_cargo = df[df['DS_CARGO'] == cargo]
 
-votavel = st.sidebar.selectbox('Nome do votável', df_cargo['NM_VOTAVEL'].unique())
+votavel = st.sidebar.selectbox('Nome do votável (Candidato)', df_cargo['NM_VOTAVEL'].unique())
 df_votavel = df_cargo[df_cargo['NM_VOTAVEL'] == votavel]
 
 # Localidades únicas para o multiselect
 localidade = df_votavel['DS_LOCAL_VOTACAO_ENDERECO'].unique()
-localidades = st.sidebar.multiselect('Endereço', localidade)
+localidades = st.sidebar.multiselect('Endereço da seção eleitoral', localidade)
 
 # Filtro para localidades selecionadas
 if localidades:
