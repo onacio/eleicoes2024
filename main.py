@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+#import plotly.express as px
 
 # Ocupa a largura total da tela
 st.set_page_config(layout='wide')
