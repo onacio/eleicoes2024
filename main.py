@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-#import plotly.express as px
+import plotly.express as px
 
 # Ocupa a largura total da tela
 st.set_page_config(layout='wide')
 
 # Colunas que serão exibidas
-colunas = ['NM_VOTAVEL','NR_SECAO', 'QT_VOTOS', 'NM_LOCAL_VOTACAO', 'DS_LOCAL_VOTACAO_ENDERECO']
+colunas = ['NM_VOTAVEL', 'NR_SECAO', 'QT_VOTOS', 'NM_LOCAL_VOTACAO', 'DS_LOCAL_VOTACAO_ENDERECO']
 
 # Carregando arquivo com dados
 df = pd.read_csv('maragogipe.csv', delimiter=';', encoding='latin1')
@@ -49,7 +49,7 @@ if votaveis:
         numero_votavel = df_filtrado[df_filtrado['NM_VOTAVEL'] == candidato]['NR_VOTAVEL'].unique()[0]
         st.sidebar.write(f'Nome: {candidato}')
         st.sidebar.write(f'Número: {numero_votavel}')
-        st.sidebar.write(f'Total de votos: {total_votos}')               
+        st.sidebar.write(f'Total de votos: {total_votos}')
 else:
     st.sidebar.write('Selecione pelo menos um candidato.')
 
@@ -60,15 +60,33 @@ st.dataframe(df_filtrado[colunas], hide_index=True, use_container_width=True)
 df_votos_por_candidato = df_filtrado.groupby('NM_VOTAVEL')['QT_VOTOS'].sum().reset_index()
 df_votos_por_candidato = df_votos_por_candidato.sort_values(by='QT_VOTOS', ascending=False)
 
-# Criar o gráfico de barras vertical para comparar candidatos
-fig = px.bar(df_votos_por_candidato, 
-             x='NM_VOTAVEL', 
-             y='QT_VOTOS', 
-             labels={'QT_VOTOS': 'Total de Votos', 'NM_VOTAVEL': 'Candidato'},
-             title=f'Comparação de Votos para {cargo}')
+# Ordenar explicitamente os nomes dos candidatos com base no total de votos (do mais votado para o menos votado)
+df_votos_por_candidato['NM_VOTAVEL'] = pd.Categorical(df_votos_por_candidato['NM_VOTAVEL'], 
+                                                      categories=df_votos_por_candidato['NM_VOTAVEL'][::-1], 
+                                                      ordered=True)
 
-# Ajustar o layout para melhorar a exibição
-fig.update_layout(xaxis_tickangle=-45)  # Inclinar os nomes dos candidatos
+# Definir a altura do gráfico dinamicamente com base no número de candidatos
+altura_grafico = max(400, len(df_votos_por_candidato) * 40)
+
+# Criar o gráfico de barras
+if votaveis:
+    # Gráfico de barras horizontal para candidatos selecionados
+    fig = px.bar(df_votos_por_candidato, 
+                 y='NM_VOTAVEL', 
+                 x='QT_VOTOS', 
+                 labels={'QT_VOTOS': 'Total de Votos', 'NM_VOTAVEL': 'Candidato'},
+                 title=f'Comparação de Votos para {cargo}')
+    # Ajustar o layout para as barras horizontais e a altura do gráfico
+    fig.update_layout(height=altura_grafico, bargap=0.2)
+else:
+    # Se nenhum candidato for selecionado, exibir todas as barras na horizontal
+    fig = px.bar(df_votos_por_candidato, 
+                 y='NM_VOTAVEL', 
+                 x='QT_VOTOS', 
+                 labels={'QT_VOTOS': 'Total de Votos', 'NM_VOTAVEL': 'Candidato'},
+                 title=f'Comparação de Votos para {cargo}')
+    # Ajustar o layout para as barras horizontais e a altura do gráfico
+    fig.update_layout(height=altura_grafico, bargap=0.2)
 
 # Exibir o gráfico no Streamlit
 st.plotly_chart(fig)
